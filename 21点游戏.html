@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>21点游戏</title>
+    <style>
+        /* 基础样式 */
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #e74c3c;
+            --background-color: #27ae60;
+            --card-background: #fff;
+            --text-color: #ecf0f1;
+            --shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 0;
+            margin: 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            color: #f1c40f;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .main-content {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .game-container {
+            background-color: rgba(44, 62, 80, 0.9);
+            border-radius: 12px;
+            padding: 1rem;
+            box-shadow: var(--shadow);
+            flex: 1;
+            min-width: 0;
+        }
+
+        .card-area {
+            margin-bottom: 1rem;
+            min-height: 180px;
+        }
+
+        .dealer-area, .player-area {
+            margin-bottom: 1rem;
+        }
+
+        .card-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .card {
+            width: 70px;
+            height: 105px;
+            border-radius: 6px;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            background-color: var(--card-background);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .card-back {
+            background-image: linear-gradient(135deg, #34495e 25%, #2c3e50 25%, #2c3e50 50%, #34495e 50%, #34495e 75%, #2c3e50 75%, #2c3e50 100%);
+            background-size: 56.57px 56.57px;
+        }
+
+        .score {
+            font-size: 1.2rem;
+            margin-top: 0.5rem;
+            font-weight: bold;
+        }
+
+        .controls {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: center;
+            margin-top: 1rem;
+        }
+
+        .btn {
+            padding: 0.6rem 1.2rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: var(--transition);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-primary {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+
+        .btn-secondary {
+            background-color: #3498db;
+            color: white;
+        }
+
+        .btn:disabled {
+            background-color: #7f8c8d;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .result-message {
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin: 0.8rem 0;
+            padding: 0.8rem;
+            border-radius: 6px;
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .rules-section {
+            background-color: rgba(44, 62, 80, 0.9);
+            border-radius: 12px;
+            padding: 1rem;
+            box-shadow: var(--shadow);
+        }
+
+        .rules-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            cursor: pointer;
+        }
+
+        .rules-content {
+            display: none;
+            padding: 1rem;
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            margin-top: 1rem;
+        }
+
+        .rules-content.show {
+            display: block;
+        }
+
+        ul {
+            list-style-position: inside;
+            margin-left: 1rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        .toggle-icon {
+            transition: transform 0.3s ease;
+        }
+
+        .toggle-icon.rotate {
+            transform: rotate(180deg);
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 2rem;
+            padding: 1rem;
+            color: var(--text-color);
+            font-size: 0.9rem;
+        }
+
+        /* 统计区域样式 */
+        .stats-container {
+            background-color: rgba(44, 62, 80, 0.9);
+            border-radius: 12px;
+            padding: 1rem;
+            box-shadow: var(--shadow);
+            width: 250px;
+            flex-shrink: 0;
+        }
+        
+        .stats-container h3 {
+            margin-bottom: 1rem;
+            text-align: center;
+            color: #f1c40f;
+        }
+        
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.7rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .stat-item:last-child {
+            border-bottom: none;
+        }
+        
+        .stat-label {
+            font-weight: bold;
+        }
+        
+        .stat-value {
+            color: #f1c40f;
+            font-weight: bold;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 900px) {
+            .main-content {
+                flex-direction: column;
+            }
+            
+            .stats-container {
+                width: 100%;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 0.8rem;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            .game-container,
+            .rules-section {
+                padding: 1rem;
+            }
+
+            .card {
+                width: 60px;
+                height: 90px;
+            }
+
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .btn {
+                width: 100%;
+                max-width: 200px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .card {
+                width: 50px;
+                height: 75px;
+            }
+
+            h1 {
+                font-size: 1.75rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>21点游戏</h1>
+            <p>挑战庄家，争取21点或最接近21点的点数！</p>
+        </header>
+
+        <div class="main-content">
+            <div class="game-container">
+            <!-- 庄家区域 -->
+            <div class="dealer-area">
+                <h2>庄家</h2>
+                <div class="card-container" id="dealer-cards">
+                    <!-- 庄家的牌将通过JavaScript添加 -->
+                </div>
+                <div class="score" id="dealer-score">得分: ?</div>
+            </div>
+
+            <!-- 玩家区域 -->
+            <div class="player-area">
+                <h2>玩家</h2>
+                <div class="card-container" id="player-cards">
+                    <!-- 玩家的牌将通过JavaScript添加 -->
+                </div>
+                <div class="score" id="player-score">得分: 0</div>
+            </div>
+
+            <!-- 游戏控制按钮 -->
+            <div class="controls">
+                <button id="hit-btn" class="btn btn-primary" disabled>要牌</button>
+                <button id="stand-btn" class="btn btn-secondary" disabled>停牌</button>
+                <button id="restart-btn" class="btn btn-primary">开始游戏</button>
+            </div>
+
+            <!-- 结果消息 -->
+            <div class="result-message" id="result-message"></div>
+        </div>
+        
+        <!-- 统计区域 -->
+        <div class="stats-container">
+            <h3>游戏统计</h3>
+            <div class="stat-item">
+                <span class="stat-label">玩家胜场:</span>
+                <span id="player-wins" class="stat-value">0</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">庄家胜场:</span>
+                <span id="dealer-wins" class="stat-value">0</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">平局:</span>
+                <span id="ties" class="stat-value">0</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">玩家胜率:</span>
+                <span id="player-win-rate" class="stat-value">0%</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 游戏规则部分 -->
+        <div class="rules-section">
+            <div class="rules-header" id="rules-header">
+                <h2>游戏规则</h2>
+                <span class="toggle-icon" id="toggle-icon">▼</span>
+            </div>
+            <div class="rules-content" id="rules-content">
+                <ul>
+                    <li>游戏使用标准的52张扑克牌，没有大小王。</li>
+                    <li>牌的点数计算：2-10的牌按面值计算，J、Q、K每张为10点，A可以算1点或11点，根据玩家选择使总点数更接近21点。</li>
+                    <li>游戏开始时，玩家和庄家各发两张牌，玩家的两张牌都是明牌，庄家一张明牌一张暗牌。</li>
+                    <li>玩家可以选择"要牌"(Hit)继续获得新牌，或"停牌"(Stand)停止拿牌。</li>
+                    <li>如果玩家的牌点数总和超过21点，玩家爆牌，立即输掉本轮游戏。</li>
+                    <li>玩家停牌后，庄家开始行动：庄家必须继续要牌直到点数达到17点或以上。</li>
+                    <li>比较玩家和庄家的点数，最接近21点且不超过21点的一方获胜。</li>
+                    <li>如果玩家和庄家点数相同，则为平局。</li>
+                </ul>
+            </div>
+        </div>
+
+        <footer>
+            <p>© 2023 21点游戏 | 仅供娱乐</p>
+        </footer>
+    </div>
+
+    <script>
+        // 游戏状态变量
+        let deck = [];
+        let playerHand = [];
+        let dealerHand = [];
+        let gameActive = false;
+        
+        // 游戏统计变量
+        let playerWins = 0;
+        let dealerWins = 0;
+        let ties = 0;
+
+        // 获取DOM元素
+        const playerCardsEl = document.getElementById('player-cards');
+        const dealerCardsEl = document.getElementById('dealer-cards');
+        const playerScoreEl = document.getElementById('player-score');
+        const dealerScoreEl = document.getElementById('dealer-score');
+        const resultMessageEl = document.getElementById('result-message');
+        const hitBtn = document.getElementById('hit-btn');
+        const standBtn = document.getElementById('stand-btn');
+        const restartBtn = document.getElementById('restart-btn');
+        const rulesHeaderEl = document.getElementById('rules-header');
+        const rulesContentEl = document.getElementById('rules-content');
+        const toggleIconEl = document.getElementById('toggle-icon');
+
+        // 创建牌组
+        function createDeck() {
+            const suits = ['黑桃', '红桃', '梅花', '方片'];
+            const values = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+            const deck = [];
+
+            for (const suit of suits) {
+                for (const value of values) {
+                    deck.push({
+                        suit: suit,
+                        value: value,
+                        image: `${suit}${value}.avif`
+                    });
+                }
+            }
+
+            return deck;
+        }
+
+        // 洗牌函数
+        function shuffleDeck(deck) {
+            for (let i = deck.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [deck[i], deck[j]] = [deck[j], deck[i]];
+            }
+            return deck;
+        }
+
+        // 计算手牌点数
+        function calculateScore(hand) {
+            let score = 0;
+            let aceCount = 0;
+
+            for (const card of hand) {
+                if (card.value === '1') {
+                    aceCount++;
+                    score += 11;
+                } else if (['J', 'Q', 'K'].includes(card.value)) {
+                    score += 10;
+                } else {
+                    score += parseInt(card.value);
+                }
+            }
+
+            // 调整A的点数，如果总分超过21
+            while (score > 21 && aceCount > 0) {
+                score -= 10;
+                aceCount--;
+            }
+
+            return score;
+        }
+
+        // 发牌函数
+        function dealCard(hand, isDealer = false, faceDown = false) {
+            const card = deck.pop();
+            hand.push(card);
+            
+            // 创建卡牌元素
+            const cardEl = document.createElement('div');
+            cardEl.classList.add('card');
+            
+            if (faceDown) {
+                cardEl.classList.add('card-back');
+            } else {
+                const imgEl = document.createElement('img');
+                imgEl.src = card.image;
+                imgEl.alt = `${card.suit}${card.value}`;
+                cardEl.appendChild(imgEl);
+            }
+            
+            // 添加到对应的区域
+            if (isDealer) {
+                dealerCardsEl.appendChild(cardEl);
+            } else {
+                playerCardsEl.appendChild(cardEl);
+            }
+            
+            // 更新分数显示
+            updateScores(isDealer, faceDown);
+        }
+
+        // 更新分数显示
+        function updateScores(isDealer = false, faceDown = false) {
+            const playerScore = calculateScore(playerHand);
+            const dealerScore = calculateScore(dealerHand);
+            
+            playerScoreEl.textContent = `得分: ${playerScore}`;
+            
+            if (isDealer && !faceDown) {
+                dealerScoreEl.textContent = `得分: ${dealerScore}`;
+            } else if (dealerHand.length === 1) {
+                dealerScoreEl.textContent = `得分: ${calculateScore([dealerHand[0]])}`;
+            }
+            
+            // 检查玩家是否爆牌
+            if (playerScore > 21) {
+                endGame('爆牌！你输了！');
+            }
+        }
+
+        // 显示所有庄家的牌
+        function revealDealerCards() {
+            // 移除背面朝上的牌
+            dealerCardsEl.innerHTML = '';
+            
+            // 重新显示所有庄家的牌
+            for (const card of dealerHand) {
+                const cardEl = document.createElement('div');
+                cardEl.classList.add('card');
+                const imgEl = document.createElement('img');
+                imgEl.src = card.image;
+                imgEl.alt = `${card.suit}${card.value}`;
+                cardEl.appendChild(imgEl);
+                dealerCardsEl.appendChild(cardEl);
+            }
+            
+            // 更新庄家分数
+            const dealerScore = calculateScore(dealerHand);
+            dealerScoreEl.textContent = `得分: ${dealerScore}`;
+        }
+
+        // 庄家行动
+        function dealerPlay() {
+            revealDealerCards();
+            
+            const playerScore = calculateScore(playerHand);
+            let dealerScore = calculateScore(dealerHand);
+            
+            // 庄家必须要牌直到点数达到17或以上
+            while (dealerScore < 17) {
+                dealCard(dealerHand, true, false);
+                dealerScore = calculateScore(dealerHand);
+            }
+            
+            // 确定游戏结果
+            if (dealerScore > 21) {
+                endGame('庄家爆牌！你赢了！');
+            } else if (dealerScore === playerScore) {
+                endGame('平局！');
+            } else if (dealerScore > playerScore) {
+                endGame('庄家获胜！');
+            } else {
+                endGame('恭喜你，获胜了！');
+            }
+        }
+
+        // 更新统计显示
+        function updateStats() {
+            const totalGames = playerWins + dealerWins + ties;
+            const winRate = totalGames > 0 ? Math.round((playerWins / totalGames) * 100) : 0;
+            
+            document.getElementById('player-wins').textContent = playerWins;
+            document.getElementById('dealer-wins').textContent = dealerWins;
+            document.getElementById('ties').textContent = ties;
+            document.getElementById('player-win-rate').textContent = winRate + '%';
+        }
+        
+        // 结束游戏
+        function endGame(message) {
+            gameActive = false;
+            hitBtn.disabled = true;
+            standBtn.disabled = true;
+            restartBtn.disabled = false;
+            resultMessageEl.textContent = message;
+            
+            // 更新统计数据
+            if (message.includes('你赢了') || message.includes('恭喜你')) {
+                playerWins++;
+            } else if (message.includes('输了') || message.includes('庄家获胜')) {
+                dealerWins++;
+            } else if (message.includes('平局')) {
+                ties++;
+            }
+            
+            // 更新统计显示
+            updateStats();
+        }
+
+        // 开始新游戏
+        function startNewGame() {
+            // 重置游戏状态
+            playerHand = [];
+            dealerHand = [];
+            gameActive = true;
+            
+            // 清空牌区域
+            playerCardsEl.innerHTML = '';
+            dealerCardsEl.innerHTML = '';
+            resultMessageEl.textContent = '';
+            
+            // 更新按钮状态
+            hitBtn.disabled = false;
+            standBtn.disabled = false;
+            restartBtn.disabled = true;
+            
+            // 创建新牌组并洗牌
+            deck = createDeck();
+            deck = shuffleDeck(deck);
+            
+            // 发初始牌
+            dealCard(playerHand);
+            dealCard(dealerHand, true);
+            dealCard(playerHand);
+            dealCard(dealerHand, true, true); // 庄家的第二张牌背面朝上
+        }
+
+        // 事件监听器
+        hitBtn.addEventListener('click', () => {
+            if (gameActive) {
+                dealCard(playerHand);
+            }
+        });
+
+        standBtn.addEventListener('click', () => {
+            if (gameActive) {
+                dealerPlay();
+            }
+        });
+
+        restartBtn.addEventListener('click', startNewGame);
+
+        // 切换游戏规则显示
+        rulesHeaderEl.addEventListener('click', () => {
+            rulesContentEl.classList.toggle('show');
+            toggleIconEl.classList.toggle('rotate');
+        });
+
+        // 预加载游戏规则
+        rulesHeaderEl.click();
+        setTimeout(() => {
+            rulesHeaderEl.click();
+        }, 500);
+    </script>
+</body>
+</html>
